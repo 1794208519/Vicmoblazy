@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.ResttingDateDao">
+    
+	<sql id="ResttingDateColumns">
+		a.id AS "id",
+		a.login_name AS "login_name",
+		a.password AS "password",
+		a.email AS "email"
+		
+	</sql>
+    
+	<select id="get" resultType="ResttingDate">
+		SELECT 
+			<include refid="ResttingDateColumns"/>
+		FROM sys_user a		
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ResttingDate">
+		SELECT 
+			<include refid="ResttingDateColumns"/>
+		FROM sys_user a
+		<where>
+			
+			<if test="login_name != null ">
+				AND a.login_name = #{login_name}
+			</if>
+			<if test="email != null ">
+				AND a.email = #{email}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="ResttingDate" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_user(
+			login_name,
+			password,
+			email
+			
+		) VALUES (
+			#{account},
+			#{password},
+			#{email}
+		)
+	</insert>
+	
+	<update id="update" parameterType="ResttingDate" useGeneratedKeys="true" keyProperty="id">
+		UPDATE sys_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="login_name != null ">login_name = #{login_name},</if>
+			<if test="password != null ">password = #{password},</if>
+			<if test="email != null ">email = #{email}</if>
+			
+		 </trim>
+		WHERE id = #{id}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sys_user
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findResttingDateByDevices" parameterType="String" resultType="ResttingDate">
+		SELECT  login_name,password,email FROM sys_user WHERE login_name is NULL or login_name = #{login_name} or login_name = '' 
+	</select>
+</mapper>

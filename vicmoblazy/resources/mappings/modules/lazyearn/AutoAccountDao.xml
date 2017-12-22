@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoAccountDao">
+    <sql id="AutoAccountColumns">
+		a.accountId AS "accountId",
+		a.account AS "account",
+		a.password AS "password",
+		a.devices AS "devices",
+		a.deleteFlag AS "deleteFlag",
+		a.nickname AS "nickname"
+	</sql>
+    
+     <sql id="autoControl">
+		b.controlId AS "controlId",
+		b.maindevices AS "maindevices",
+		b.partdevices AS "partdevices"
+	</sql>
+    
+	<select id="get" resultType="AutoAccount">
+		SELECT 
+			<include refid="AutoAccountColumns"/>
+		FROM auto_account a		
+		WHERE a.accountId = #{accountId} AND a.deleteFlag = 0
+		
+		ORDER BY a.accountId desc
+	</select>
+	
+	<select id="findList" resultType="AutoAccount">
+		SELECT 
+			<include refid="AutoAccountColumns"/>,
+			<include refid="autoControl"/>
+		FROM auto_account a left join auto_control b on a.devices=b.partdevices
+		<where>
+			<if test="accountId != null ">
+				AND a.accountId = #{accountId}
+			</if>
+			<if test="maindevices != null ">
+					AND b.maindevices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{maindevices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{maindevices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{maindevices},'%')</if>				
+			</if>
+			<if test="devices != null ">
+				AND ( a.devices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{devices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{devices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{devices},'%')</if>
+			</if>
+			<if test="account != null ">
+					OR a.account LIKE 
+						<if test="dbName == 'oracle'">'%'||#{account}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{account}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{account},'%')</if>
+						
+			</if>
+			<if test="nickname != null ">
+					OR a.nickname LIKE 
+						<if test="dbName == 'oracle'">'%'||#{nickname}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{nickname}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{nickname},'%')</if>
+						)
+			</if>
+			
+			<if test="deleteFlag != null">
+			     AND a.deleteFlag = #{deleteFlag}
+			</if>
+		</where>
+		ORDER BY a.accountId desc,b.maindevices desc
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="AutoAccount" useGeneratedKeys="true" keyProperty="accountId">
+		INSERT INTO auto_account(
+			account,
+			password,
+			devices,
+			deleteFlag,
+			nickname
+		) VALUES (
+			#{account},
+			#{password},
+			#{devices},
+			#{deleteFlag},
+			#{nickname}
+		)
+	</insert>
+	
+	<update id="update" parameterType="AutoAccount" useGeneratedKeys="true" keyProperty="accountId">
+		UPDATE auto_account
+		<trim prefix="set" suffixOverrides=",">
+			<if test="account != null ">account = #{account},</if>
+			<if test="password != null ">password = #{password},</if>
+			<if test="devices != null ">devices = #{devices},</if>
+			<if test="deleteFlag != null ">deleteFlag = #{deleteFlag},</if>	
+			<if test="nickname != null ">nickname = #{nickname}</if>	
+		 </trim>
+		WHERE accountId = #{accountId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete">
+		DELETE FROM auto_account
+		WHERE accountId = #{accountId}
+	</update>
+	
+	<select id="findAutoAccountByDevices" parameterType="String" resultType="AutoAccount">
+		SELECT * FROM auto_account WHERE devices is NULL or devices = #{devices} or devices = '' 
+	</select>
+</mapper>

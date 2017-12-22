@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.WeixinOpenAccountDao">
+    
+	<sql id="weixinOpenAccountColumns">
+		a.ticketId AS "ticketId",
+		a.component_appid AS "componentAppid",
+		a.component_appsecret AS "componentAppsecret",
+		a.ticket AS "ticket",
+		a.getTicketTime AS "getTicketTime",	
+		a.component_access_token AS "componentAccessToken",
+		a.component_access_token_endtime AS "componentAccessTokenEndtime"
+	</sql>
+	
+	<sql id="weixinOpenAccountJoins">
+	</sql>
+    
+	<select id="get" resultType="WeixinOpenAccount">
+		SELECT 
+			<include refid="weixinOpenAccountColumns"/>
+		FROM vicmob_component_account a
+		<include refid="weixinOpenAccountJoins"/>
+		WHERE a.ticketId = #{ticketId}
+	</select>
+	
+	<select id="findList" resultType="WeixinOpenAccount">
+		SELECT 
+			<include refid="weixinOpenAccountColumns"/>
+		FROM vicmob_component_account a
+			<include refid="weixinOpenAccountJoins"/>
+		<where>
+			<if test="componentAppid != null and componentAppid != ''">
+				AND a.component_appid = #{componentAppid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MinaInfo">
+		SELECT 
+			<include refid="weixinOpenAccountColumns"/>
+		FROM vicmob_component_account a
+		<include refid="weixinOpenAccountJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" parameterType="WeixinOpenAccount" useGeneratedKeys="true" keyProperty="ticketId">
+		INSERT INTO vicmob_component_account(  
+			component_appid, 
+			component_appsecret, 
+			ticket, 
+			getTicketTime,  
+			component_access_token, 
+			component_access_token_endtime
+		) VALUES ( 
+			#{componentAppid}, 
+			#{componentAppsecret}, 
+			#{ticket}, 
+			#{getTicketTime},  
+			#{componentAccessToken}, 
+			#{componentAccessTokenEndtime}
+		)
+	</insert>
+	
+	<update id="update" parameterType="WeixinOpenAccount" useGeneratedKeys="true" keyProperty="ticketId">
+		UPDATE vicmob_component_account SET 	
+			component_appid = #{componentAppid},
+			component_appsecret = #{componentAppsecret}, 
+			ticket = #{ticket}, 
+			getTicketTime = #{getTicketTime},
+			component_access_token = #{componentAccessToken}, 
+			component_access_token_endtime = #{componentAccessTokenEndtime}
+		WHERE ticketId = #{ticketId}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM vicmob_component_account
+		WHERE ticketId = #{ticketId}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE vicmob_component_account SET 
+			status = 0
+		WHERE ticketId = #{ticketId}
+	</update>
+	
+	<!--逻辑删除(重新写的)-->
+	<update id="logicDelete">
+		UPDATE vicmob_component_account SET 
+			status = 0
+		WHERE ticketId = #{ticketId}
+	</update>
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="WeixinOpenAccount" statementType="STATEMENT">
+		select * FROM vicmob_component_account  where ${propertyName} = '${value}'
+	</select>
+</mapper>

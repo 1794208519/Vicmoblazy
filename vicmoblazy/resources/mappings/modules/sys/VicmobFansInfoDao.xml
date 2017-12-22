@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.VicmobFansInfoDao">
+    
+	<sql id="vicmobFansInfo">
+		a.fansId AS "fansId",
+		a.minaId AS "minaId",
+		a.openId AS "openId",
+		a.nickname AS "nickname",
+		a.sex AS "sex",	
+		a.avatar AS "avatar",
+		a.addtime AS "addtime",
+		a.balance AS "balance",
+		a.usedBalance AS "usedBalance",
+		a.totalBalance AS "totalBalance",
+		a.integral AS "integral",
+		a.usedIntegral AS "usedIntegral",
+		a.totalIntegral AS "totalIntegral",
+		a.payPassword AS "payPassword"
+	</sql>
+	
+	<select id="get" resultType="VicmobFansInfo">
+		SELECT 
+			<include refid="vicmobFansInfo"/>
+		FROM vicmob_fans a
+		<where>
+			<if test="fansId != null">
+					AND a.fansId = #{fansId}
+			</if>
+			<if test="minaId != null ">
+			     	AND a.minaId = #{minaId}
+			</if>
+			<if test="openId != null ">
+			     	AND a.openId = #{openId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="VicmobFansInfo">
+		SELECT 
+			<include refid="vicmobFansInfo"/>
+		FROM vicmob_fans a
+		<where>
+			<if test="fansId != null and fansId != ''">
+					AND a.fansId = #{fansId}
+			</if>
+			<if test="minaId != null and minaId != ''">
+					AND a.minaId = #{minaId}
+			</if>
+			<if test="openId != null and openId != ''">
+			     AND a.openId = #{openId}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insert"  parameterType="VicmobFansInfo" useGeneratedKeys="true" keyProperty="fansId">
+		INSERT INTO vicmob_fans(
+			minaId,
+			openId,
+			nickname,
+			sex,
+			avatar,
+			addtime,
+			balance,
+			usedBalance,
+			totalBalance,
+			integral,
+			usedIntegral,
+			totalIntegral,
+			payPassword
+		) VALUES (
+			#{minaId},
+			#{openId},
+			#{nickname},
+			#{sex},
+			#{avatar},
+			#{addtime},
+			#{balance},
+			#{usedBalance},
+			#{totalBalance},
+			#{integral},
+			#{usedIntegral},
+			#{totalIntegral},
+			#{payPassword}
+		)
+	</insert>
+	
+	
+	<update id="update" parameterType="VicmobFansInfo">
+		UPDATE vicmob_fans
+		<trim prefix="set" suffixOverrides=",">
+			<if test="minaId != null and minaId != ''">minaId = #{minaId},</if>
+			<if test="openId != null and openId != ''">openId = #{openId},</if>
+			<if test="nickname != null and nickname != ''">nickname = #{nickname},</if>
+			<if test="sex != null and sex != ''">sex = #{sex},</if>
+			<if test="avatar != null and avatar != ''">avatar = #{avatar},</if>
+			<if test="addtime != null and addtime != ''">addtime = #{addtime},</if>
+			<if test="balance != null and balance != ''">balance = #{balance},</if>
+			<if test="usedBalance != null and usedBalance != ''">usedBalance = #{usedBalance},</if>
+			<if test="totalBalance != null and totalBalance != ''">totalBalance = #{totalBalance},</if>
+			<if test="integral != null and integral != ''">integral = #{integral},</if>
+			<if test="usedIntegral != null and usedIntegral != ''">usedIntegral = #{usedIntegral},</if>
+			<if test="totalIntegral != null and totalIntegral != ''">totalIntegral = #{totalIntegral},</if>
+			<if test="payPassword != null and payPassword != ''">payPassword = #{payPassword}</if>
+		 </trim>
+		WHERE fansId = #{fansId}
+	</update>
+	
+	<!-- 通过openId获取fans信息  API  -->
+	<!-- 条件1：小程序Id；条件2：openId -->
+	<select id="getFindList" resultType="VicmobFansInfo">
+		SELECT 
+			<include refid="vicmobFansInfo"/>
+		FROM vicmob_fans a
+		<where>
+			<if test="openId != null and openId != ''">
+					AND a.openId = #{openId}
+			</if>
+			<if test="minaId != null and minaId != ''">
+					AND a.minaId = #{minaId}
+			</if>
+		</where>
+		
+	</select>
+	
+</mapper>

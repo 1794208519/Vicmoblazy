@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.VicmobUserProductsDao">
+
+	<sql id="vicmobUserProducts">
+		a.productsId AS "productsId",
+		a.userId AS "userId",
+		a.startTime AS "startTime",
+		a.endTime AS "endTime",
+		a.updateTime AS
+		"updateTime",
+		a.versionNum AS "versionNum",
+		a.versionLevel AS
+		"versionLevel",
+		a.status AS
+		"status"
+	</sql>
+
+	<select id="get" resultType="VicmobUserProducts">
+		SELECT
+		<include refid="vicmobUserProducts" />
+		FROM vicmob_sys_userproducts a
+		<where>
+			<if test="productsId != null">
+				AND a.productsId = #{productsId}
+			</if>
+			<if test="userId != null ">
+				AND a.userId = #{userId}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="VicmobUserProducts">
+		SELECT
+		<include refid="vicmobUserProducts" />
+		FROM vicmob_sys_userproducts a
+		<where>
+			<if test="userId != null and userId != ''">
+				AND a.userId = #{userId}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="VicmobUserProducts"
+		useGeneratedKeys="true" keyProperty="productsId">
+		INSERT INTO
+		vicmob_sys_userproducts(
+		userId,
+		startTime,
+		endTime,
+		updateTime,
+		versionNum,
+		versionLevel,
+		status
+		) VALUES (
+		#{userId},
+		#{startTime},
+		#{endTime},
+		#{updateTime},
+		#{versionNum},
+		#{versionLevel},
+		#{status}
+		)
+	</insert>
+
+
+	<update id="update" parameterType="VicmobUserProducts">
+		UPDATE vicmob_sys_userproducts
+		<trim prefix="set" suffixOverrides=",">
+			<if test="userId != null and userId != ''">userId = #{userId},</if>
+			<if test="startTime != null and startTime != ''">startTime = #{startTime},</if>
+			<if test="endTime != null and endTime != ''">endTime = #{endTime},</if>
+			<if test="updateTime != null and updateTime != ''">updateTime = #{updateTime},</if>
+			<if test="versionNum != null and versionNum != ''">versionNum = #{versionNum},</if>
+			<if test="versionLevel != null and versionLevel != ''">versionLevel = #{versionLevel},</if>
+			<if test="status != null and status != ''">status = #{status}</if>
+		</trim>
+		WHERE productsId = #{productsId}
+	</update>
+
+	<!-- 通过openId获取fans信息 API -->
+	<!-- 条件1：小程序Id；条件2：openId -->
+	<select id="getFindList" resultType="VicmobUserProducts">
+		SELECT
+		<include refid="vicmobUserProducts" />
+		FROM vicmob_sys_userproducts a
+		<where>
+			<if test="userId != null and userId != ''">
+				AND a.userId = #{userId}
+			</if>
+		</where>
+	</select>
+
+	<!--删除 -->
+	<update id="delete" parameterType="VicmobUserProducts">
+		DELETE FROM
+		vicmob_sys_userproducts
+		WHERE userId = #{userId}
+	</update>
+</mapper>

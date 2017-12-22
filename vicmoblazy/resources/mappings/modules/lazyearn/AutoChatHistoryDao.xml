@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoChatHistoryDao">
+
+	
+	<sql id="AutoChatHistory">
+		a.chatId AS "chatId",
+		a.deviceId AS "deviceId",
+		a.chatPeople AS "chatPeople",
+		a.chatFriends AS "chatFriends",
+		a.chatTime AS "chatTime",
+		a.chatFlag AS "chatFlag",
+		a.chatContents AS "chatContents"
+	</sql>
+	<!-- 获得聊天好友 -->
+	<select id="findChatFriendsList" resultType="String">
+		SELECT distinct chatFriends
+		FROM auto_chat_record a	
+		WHERE a.chatPeople = #{weChatFriends}
+		ORDER BY a.chatTime desc
+	</select>
+	<!-- 获得最近时间 -->
+   <select id="getRecentlyTime" resultType="String">
+		SELECT MAX(chatTime) FROM auto_chat_record WHERE chatPeople = #{0} AND chatFriends = #{1}
+	</select>
+	<!-- 获得详细聊天信息 -->
+    <select id="searchChatDetails" resultType="AutoChatHistory">
+		SELECT 
+			<include refid="AutoChatHistory"/>
+		FROM auto_chat_record a 
+		WHERE a.chatPeople = #{0}
+		AND a.chatFriends = #{1}
+		AND date_format(chatTime,'%Y-%m-%d') = #{2}
+		ORDER BY a.chatTime
+	</select>
+	<!-- 插入聊天信息 -->
+	<insert id="insertChatHistory"  parameterType="AutoChatHistory" useGeneratedKeys="true" keyProperty="chatId">
+		INSERT INTO auto_chat_record(
+			deviceId,
+			chatPeople,
+			chatFriends,
+			chatTime,
+			chatFlag,
+			chatContents
+		) VALUES (
+			#{deviceId},
+			#{chatPeople},
+			#{chatFriends},
+			#{chatTime},
+			#{chatFlag},
+			#{chatContents}
+		)
+	</insert>
+	<!-- 更新聊天信息 -->
+	<update id="updataChatHistory" parameterType="AutoChatHistory" useGeneratedKeys="true" keyProperty="chatId">
+		UPDATE auto_chat_record
+		<trim prefix="set" suffixOverrides=",">
+			<if test="deviceId != null ">deviceId = #{deviceId},</if>
+			<if test="chatPeople != null ">chatPeople = #{chatPeople},</if>
+			<if test="chatFriends != null ">chatFriends = #{chatFriends},</if>
+			<if test="chatTime != null ">chatTime = #{chatTime},</if>	
+			<if test="chatFlag != null ">chatFlag = #{chatFlag},</if>
+			<if test="chatContents != null ">chatContents = #{chatContents}</if>		
+		 </trim>
+		     WHERE chatId = #{chatId}
+	</update>
+	<!-- 获得聊天好友总数 -->
+	<select id="findAllNum" resultType="int">
+		SELECT COUNT(*) FROM auto_chat_record WHERE deviceId = #{deviceId}
+	</select>
+	<!-- 获得最小聊天信息 -->
+   <select id="findMinChaId" resultType="int">
+		SELECT MIN(chatId) FROM auto_chat_record WHERE deviceId = #{deviceId}
+	</select>
+		<!--物理删除-->
+	<update id="deleteMinCha">
+		DELETE FROM auto_chat_record
+		WHERE chatId = #{minChaId}
+	</update>
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.VicmobPayAccountDao">
+    
+	<sql id="vicmobPayAccount">
+		a.weChatPayId AS "weChatPayId",
+		a.minaId AS "minaId",
+		a.appId AS "appId",
+		a.mchId AS "mchId",
+		a.apiKey AS "apiKey",
+		a.certificatePath AS "certificatePath",
+		a.state AS "state"
+	</sql>
+	
+	
+	<select id="get" resultType="VicmobPayAccount">
+		SELECT 
+			<include refid="vicmobPayAccount"/>
+		FROM vicmob_pay_account a
+		<where>
+			<if test="weChatPayId != null">
+					AND a.weChatPayId = #{weChatPayId}
+			</if>
+			<if test="minaId != null ">
+			     	AND a.minaId = #{minaId}
+			</if>
+			<if test="state != null ">
+			     	AND a.state = #{state}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insert"  parameterType="VicmobPayAccount" useGeneratedKeys="true" keyProperty="weChatPayId">
+		INSERT INTO vicmob_pay_account(
+			minaId,
+			appId,
+			mchId,
+			apiKey,
+			certificatePath
+		) VALUES (
+			#{minaId},
+			#{appId},
+			#{mchId},
+			#{apiKey},
+			#{certificatePath}
+		)
+	</insert>
+	
+	
+	<update id="update" parameterType="VicmobPayAccount">
+		UPDATE vicmob_pay_account
+		<trim prefix="set" suffixOverrides=",">
+			<if test="appId != null ">appId =#{appId},</if>
+			<if test="mchId != null ">mchId =#{mchId},</if>
+			<if test="apiKey != null ">apiKey =#{apiKey},</if>
+			<if test="certificatePath != null ">certificatePath =#{certificatePath},</if>
+			<if test="state != null ">state =#{state}</if>
+		</trim>
+		WHERE minaId = #{minaId}
+	</update>
+</mapper>

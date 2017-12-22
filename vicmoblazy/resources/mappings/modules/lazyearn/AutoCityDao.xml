@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoCityDao">
+
+	<sql id="autoCityColumns">
+		a.cityId AS "cityId",
+		a.city AS "city",
+		a.operator AS
+		"operator",
+		a.devices AS "devices",
+		a.deleteFlag AS "deleteFlag",
+		a.province AS "province"
+
+	</sql>
+	<sql id="autoControl">
+		b.controlId AS "controlId",
+		b.maindevices AS "maindevices",
+		b.partdevices AS "partdevices"
+	</sql>
+	<select id="get" resultType="AutoCity">
+		SELECT
+		<include refid="autoCityColumns" />
+		FROM auto_city a
+
+		WHERE a.cityId = #{cityId} AND a.deleteFlag = 0
+	</select>
+
+	<select id="findList" resultType="AutoCity">
+		SELECT
+		<include refid="autoCityColumns" />
+		,
+		<include refid="autoControl" />
+		FROM auto_city a left join auto_control b on a.devices=b.partdevices
+		<where>
+			<if test="cityId != null ">
+				AND a.cityId = #{cityId}
+			</if>
+			<if test="maindevices != null ">
+				AND b.maindevices LIKE
+				<if test="dbName == 'oracle'">'%'||#{maindevices}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{maindevices}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{maindevices},'%')</if>
+			</if>
+			<if test="deleteFlag != null">
+				AND a.deleteFlag = #{deleteFlag}
+			</if>
+			<if test="city != null ">
+				AND ( a.city LIKE
+				<if test="dbName == 'oracle'">'%'||#{city}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{city}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{city},'%')</if>
+			</if>
+			<if test="devices != null ">
+				OR a.devices LIKE
+				<if test="dbName == 'oracle'">'%'||#{devices}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{devices}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{devices},'%')</if>
+			</if>
+			<if test="operator != null ">
+				OR a.operator LIKE
+				<if test="dbName == 'oracle'">'%'||#{operator}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{operator}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{operator},'%')</if>
+			</if>
+			<if test="province != null">
+				OR a.province LIKE
+				<if test="dbName == 'oracle'">'%'||#{province}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{province}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{province},'%')</if>
+				 )
+			</if>
+			
+			
+		</where>
+		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.cityId DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" parameterType="AutoCity" useGeneratedKeys="true"
+		keyProperty="cityId">
+		INSERT INTO auto_city(
+		city,
+		operator,
+		devices,
+		deleteFlag,
+		province
+		) VALUES (
+		#{city},
+		#{operator},
+		#{devices},
+		#{deleteFlag},
+		#{province}
+		)
+	</insert>
+
+	<update id="update" parameterType="AutoCity" useGeneratedKeys="true"
+		keyProperty="cityId">
+		UPDATE auto_city
+		<trim prefix="set" suffixOverrides=",">
+			<if test="city != null ">city = #{city},</if>
+			<if test="operator != null ">operator = #{operator},</if>
+			<if test="devices != null ">devices = #{devices},</if>
+			<if test="deleteFlag != null ">deleteFlag = #{deleteFlag},</if>
+			<if test="province != null ">province = #{province}</if>
+		</trim>
+		WHERE cityId = #{cityId}
+	</update>
+
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM auto_city
+		WHERE cityId = #{cityId}
+	</update>
+
+	<select id="findAutoCityByDevices" parameterType="String"
+		resultType="AutoCity">
+		SELECT * FROM auto_city WHERE devices is NULL or devices =
+		#{devices} or devices = ''
+	</select>
+	<select id="isExist" resultType="int">
+		SELECT COUNT(*)
+		FROM auto_city 
+		WHERE	deleteFlag = 0	AND devices = #{devices}
+		
+	</select>
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoControlDao">
+    
+	<sql id="autoControlColumns">
+		a.controlId AS "controlId",
+		a.maindevices AS "maindevices",
+		a.partdevices AS "partdevices"
+	</sql>
+    
+	<select id="get" resultType="AutoControl">
+		SELECT 
+			<include refid="autoControlColumns"/>
+		FROM auto_control a
+		
+		WHERE a.controlId = #{controlId}
+	</select>
+		
+	<select id="findList" resultType="AutoControl">
+		SELECT 
+			<include refid="autoControlColumns"/>
+		FROM auto_control a
+		<where>
+			<if test="controlId != null ">
+				AND a.controlId = #{controlId}
+			</if>
+			<if test="maindevices != null ">
+				AND ( a.maindevices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{maindevices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{maindevices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{maindevices},'%')</if>
+			</if>
+			<if test="partdevices != null ">
+				OR a.partdevices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{partdevices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{partdevices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{partdevices},'%')</if>
+						)
+			</if>
+		</where>
+		ORDER BY a.controlId desc
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	<select id="findNumList" resultType="AutoControl">
+		SELECT 
+			<include refid="autoControlColumns"/>
+		FROM auto_control a
+		<where>
+			<if test="controlId != null ">
+				AND a.controlId = #{controlId}
+			</if>
+			<if test="maindevices != null ">
+				AND a.maindevices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{maindevices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{maindevices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{maindevices},'%')</if>
+			</if>
+		
+			<if test="partdevices != null ">
+				AND a.partdevices = #{partdevices}
+			</if>
+		</where>
+		ORDER BY a.controlId desc limit 0,15
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>	
+	<insert id="insert"  parameterType="AutoControl" useGeneratedKeys="true" keyProperty="controlId">
+		INSERT INTO auto_control(
+			maindevices,
+			partdevices
+		) VALUES (
+			#{maindevices},
+			#{partdevices}
+		)
+	</insert>
+	
+	<update id="update" parameterType="AutoControl" useGeneratedKeys="true" keyProperty="controlId">
+		UPDATE auto_control
+		<trim prefix="set" suffixOverrides=",">
+			<if test="maindevices != null ">maindevices = #{maindevices},</if>
+			<if test="partdevices != null ">partdevices = #{partdevices}</if>
+		 </trim>
+		WHERE controlId = #{controlId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete">
+		DELETE FROM auto_control
+		WHERE controlId = #{controlId}
+	</update>
+	
+	<update id="delcontrolId">
+		DELETE FROM auto_control
+		WHERE controlId = #{controlId}
+	</update>
+	
+	<select id="isExist" resultType="int">
+		SELECT COUNT(*)
+		FROM auto_control
+		WHERE partdevices = #{partdevices}
+	</select>
+</mapper>

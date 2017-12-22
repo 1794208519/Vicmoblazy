@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.VicCodeTextDao">
+
+	<sql id="VicCodeTextColumns">
+		a.codeTextId AS "codeTextId",
+		a.keyword AS "keyword",
+		a.text AS "text",
+		a.creatime AS "creatime",
+		a.type AS "type",
+		a.devices AS "devices",
+		a.dataShareFlag AS "dataShareFlag"
+	</sql>
+
+	<select id="get" resultType="VicCodeText">
+		SELECT
+		<include refid="VicCodeTextColumns" />
+		FROM vic_codetext a
+
+		WHERE a.codeTextId = #{codeTextId}
+	</select>
+	<!-- 分页查询 -->
+	<select id="findPageList" resultType="VicCodeText">
+		SELECT
+		<include refid="VicCodeTextColumns" />
+		FROM vic_codetext a
+		<where>
+			<if test="codeTextId != null ">
+				AND a.codeTextId = #{codeTextId}
+			</if>	
+			<if test="devices != null and devices !=''">
+					AND a.devices LIKE
+					<if test="dbName == 'oracle'">'%'||#{devices}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{devices}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{devices},'%')</if>
+					
+				</if>	 
+				<if test="keyword != null and keyword !=''">
+					AND ( a.keyword LIKE
+					<if test="dbName == 'oracle'">'%'||#{keyword}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{keyword}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{keyword},'%')</if>
+				</if>
+				<if test="text != null and text !=''">
+					OR a.text LIKE
+					<if test="dbName == 'oracle'">'%'||#{text}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{text}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{text},'%')</if>
+					)
+				</if>
+				
+		</where>
+			ORDER BY a.codeTextId DESC
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	<select id="findList" resultType="VicCodeText">
+		SELECT
+		<include refid="VicCodeTextColumns" />
+		FROM vic_codetext a
+		<where>
+			<if test="codeTextId != null">
+				AND a.codeTextId = #{codeTextId}
+			</if>
+			<if test="keyword != null">
+				AND a.keyword = #{keyword}
+			</if>
+			<if test="text != null">
+				AND a.text = #{text}
+			</if>
+			<if test="devices != null">
+				AND a.devices = #{devices}
+			</if>
+			
+		</where>
+		ORDER BY a.codeTextId DESC
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+		limit #{pager},#{row}
+	</select>
+
+	<!-- 模糊查询 -->
+	<select id="findlikeList" resultType="VicCodeText">
+		SELECT
+		<include refid="VicCodeTextColumns" />
+		FROM vic_codetext a
+		<where>
+			<if test="codeTextId != null">
+				AND a.codeTextId = #{codeTextId}
+			</if>
+			<if test="keyword != null">
+				AND a.keyword like concat(concat('%',#{keyword}),'%')
+			</if>
+			<if test="text != null">
+				AND a.text = #{text}
+			</if>
+			<if test="devices != null">
+				AND a.devices = #{devices}
+			</if>
+		</where>
+		ORDER BY a.codeTextId DESC
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+		limit #{pager},#{row}
+	</select>
+
+	<!-- 通过关键词查询 -->
+	<select id="findIntelligentResponse" resultType="VicCodeText">
+		SELECT
+		<include refid="VicCodeTextColumns" />
+		FROM vic_codetext a
+		<where>
+			<if test="keyword != null and keyword !=''">
+				AND a.keyword = #{keyword}
+			</if>
+			<if test="devices != null and devices !=''">
+				AND a.devices = #{devices}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="VicCodeText"
+		useGeneratedKeys="true" keyProperty="codeTextId">
+		INSERT INTO vic_codetext(
+		keyword,
+		text,
+		creatime,
+		devices,
+		type,
+		dataShareFlag
+		) VALUES (
+		#{keyword},
+		#{text},
+		#{creatime},
+		#{devices},
+		#{type},
+		#{dataShareFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="VicCodeText"
+		useGeneratedKeys="true" keyProperty="codeTextId">
+		UPDATE vic_codetext
+		<trim prefix="set" suffixOverrides=",">
+			<if test="keyword != null">keyword = #{keyword},</if>
+			<if test="text != null">text = #{text},</if>
+			<if test="creatime != null">creatime = #{creatime},</if>
+			<if test="devices != null">devices = #{devices},</if>
+			<if test="type != null">type = #{type},</if>
+			<if test="dataShareFlag != null">dataShareFlag = #{dataShareFlag}</if>
+		</trim>
+		WHERE codeTextId = #{codeTextId}
+	</update>
+
+	<!--物理删除 -->
+	<update id="deleteByCodeTextId" parameterType="VicCodeText"
+		useGeneratedKeys="true" keyProperty="codeTextId">
+		DELETE FROM vic_codetext
+		WHERE
+		codeTextId = #{codeTextId}
+	</update>
+	<!--物理删除 -->
+	<update id="deleteByKeword" parameterType="VicCodeText"
+		useGeneratedKeys="true" keyProperty="codeTextId">
+		DELETE FROM vic_codetext
+		WHERE
+		keyword = #{keyword} AND text = #{text}
+	</update>
+
+</mapper>

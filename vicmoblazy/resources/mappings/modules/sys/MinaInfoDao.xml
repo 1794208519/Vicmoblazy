@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.MinaInfoDao">
+    
+	<sql id="minaInfoColumns">
+		a.minaid AS "minaid",
+		a.userid AS "userid",
+		a.unicalid AS "unicalid",
+		a.publicAppid AS "publicAppid",
+		a.token AS "token",
+		a.encodingaeskey AS "encodingaeskey",
+		a.appid AS "appid",
+		a.appsecret AS "appsecret",		
+		a.nick_name AS "nickName",
+		a.head_img AS "headImg",
+		a.user_name AS "userName",
+		a.verify_type AS "verifyType",
+		a.service_type AS "serviceType",
+		a.signature AS "signature",
+		a.nonceStr AS "nonceStr",
+		a.timesTamp AS "timesTamp",
+		a.loginname AS "loginname",
+		a.password AS "password",
+		a.jsapi_ticket AS "jsapiTicket",
+		a.authorizer_access_token AS "authorizerAccessToken",
+		a.authorizer_access_tokenEndTime AS "authorizerAccessTokenEndTime",
+		a.authorizer_refresh_token AS "authorizerRefreshToken",
+		a.authorizer_refresh_tokenEndTime AS "authorizerRefreshTokenEndTime",
+		a.status AS "status"
+	</sql>
+	
+	<sql id="minaInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="MinaInfo">
+		SELECT 
+			<include refid="minaInfoColumns"/>
+		FROM vicmob_mina_authorization a
+		<include refid="minaInfoJoins"/>
+		WHERE a.minaid = #{minaid}
+	</select>
+	
+	<select id="findList" resultType="MinaInfo">
+		SELECT 
+			<include refid="minaInfoColumns"/>
+		FROM vicmob_mina_authorization a
+		<include refid="minaInfoJoins"/>
+		<where>
+			<if test="userid != null and userid != ''">
+				AND a.userid = #{userid}
+			</if>
+			<if test="appid != null and appid != ''">
+				AND a.appid = #{appid}
+			</if>
+			
+			AND a.status = 1
+
+			<if test="nickName != null and nickName != ''">
+				AND a.nick_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{nickName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{nickName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{nickName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MinaInfo">
+		SELECT 
+			<include refid="minaInfoColumns"/>
+		FROM vicmob_mina_authorization a
+		<include refid="minaInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" parameterType="MinaInfo" useGeneratedKeys="true" keyProperty="minaid">
+		INSERT INTO vicmob_mina_authorization(  
+			userid, 
+			unicalid,
+			publicAppid,
+			token, 
+			encodingaeskey, 
+			appid, 
+			appsecret, 
+			nick_name, 
+			head_img, 
+			user_name,
+			verify_type,
+			service_type,
+			signature, 
+			nonceStr, 
+			timesTamp, 
+			loginname, 
+			password, 
+			jsapi_ticket, 
+			authorizer_access_token, 
+			authorizer_access_tokenEndTime, 
+			authorizer_refresh_token,
+			authorizer_refresh_tokenEndTime,
+			status
+		) VALUES ( 
+			#{userid}, 
+			#{unicalid},
+			#{publicAppid},
+			#{token}, 
+			#{encodingaeskey}, 
+			#{appid},
+			#{appsecret},  
+			#{nickName}, 
+			#{headImg}, 
+			#{userName},
+			#{verifyType}, 
+			#{serviceType},   
+			#{signature}, 
+			#{nonceStr}, 
+			#{timesTamp}, 
+			#{loginname}, 
+			#{password}, 
+			#{jsapiTicket}, 
+			#{authorizerAccessToken},
+			#{authorizerAccessTokenEndTime}, 
+			#{authorizerRefreshToken},
+			#{authorizerRefreshTokenEndTime},
+			#{status}
+		)
+	</insert>
+	
+	<update id="update" parameterType="MinaInfo" useGeneratedKeys="true" keyProperty="minaid">
+		UPDATE vicmob_mina_authorization SET 	
+			userid = #{userid},
+			unicalid = #{unicalid},
+			publicAppid = #{publicAppid},
+			token = #{token}, 
+			encodingaeskey = #{encodingaeskey}, 
+			appid = #{appid},
+			appsecret = #{appsecret}, 
+			nick_name = #{nickName}, 
+			head_img = #{headImg},
+			user_name = #{userName},
+			verify_type = #{verifyType},
+			service_type = #{serviceType},
+			signature = #{signature},
+			nonceStr = #{nonceStr}, 
+			timesTamp = #{timesTamp}, 
+			loginname = #{loginname}, 
+			password = #{password}, 
+			jsapi_ticket = #{jsapiTicket}, 
+			authorizer_access_token = #{authorizerAccessToken},
+			authorizer_access_tokenEndTime = #{authorizerAccessTokenEndTime}, 
+			authorizer_refresh_token = #{authorizerRefreshToken},
+			authorizer_refresh_tokenEndTime = #{authorizerRefreshTokenEndTime},
+			status = #{status}
+		WHERE minaid = #{minaid}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM vicmob_mina_authorization
+		WHERE minaid = #{minaid}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE vicmob_mina_authorization SET 
+			status = 0
+		WHERE minaid = #{minaid}
+	</update>
+	
+	<!--逻辑删除(重新写的)-->
+	<update id="logicDelete">
+		UPDATE vicmob_mina_authorization SET 
+			status = 0
+		WHERE minaid = #{minaid}
+	</update>
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MinaInfo" statementType="STATEMENT">
+		select * FROM vicmob_mina_authorization  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 通过主键minaid获取对应唯一记录 -->
+	<select id="findEntityById" resultType="MinaInfo">
+		select * FROM vicmob_mina_authorization  where minaid = #{minaid}
+	</select>
+	
+	<!-- 通过授权小程序获取获取所有记录 -->		
+	<select id="findMinaByAppid" resultType="MinaInfo">
+		SELECT <include refid="minaInfoColumns"/>
+		FROM vicmob_mina_authorization a WHERE appid = #{appid}
+	</select>
+	
+	<!-- 通过userid获取用户信息记录 -->		
+	<select id="findUserById" resultType="User">
+		SELECT * FROM vicmob_sys_user WHERE id = #{userid}
+	</select>
+	
+	<!-- 通过userid获取用户信息记录 -->		
+	<select id="findMinaByUserid" resultType="MinaInfo">
+		SELECT * FROM vicmob_mina_authorization WHERE userid = #{userid}
+	</select>
+	
+	<!-- 通过minaId获取记录 API -->
+	<select id="getMessageByminaId" resultType="MinaInfo">
+		SELECT 
+			<include refid="minaInfoColumns"/>
+		FROM vicmob_mina_authorization a
+		<include refid="minaInfoJoins"/>
+		WHERE a.minaid = #{minaid}
+	</select>
+</mapper>

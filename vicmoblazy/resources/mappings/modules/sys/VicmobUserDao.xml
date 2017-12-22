@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.VicmobUserDao">
+
+	<sql id="vicmobUser">
+		a.id AS "userId",
+		a.groupid AS "groupId",
+		a.login_name AS "loginName",
+		a.password AS "password",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.company AS "company",
+		a.address AS "address",
+		a.login_ip AS "loginIp",
+		a.login_date AS "loginDate",
+		a.login_flag AS "loginFlag",
+		a.jointime AS "joinTime",
+		a.starttime AS "startTime",
+		a.endtime AS "endTime",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<select id="get" resultType="VicmobUser">
+		SELECT
+		<include refid="vicmobUser" />
+		FROM vicmob_sys_user a
+		<where>
+			<if test="userId != null">
+				AND a.id = #{userId}
+			</if>
+			<if test="loginName != null ">
+				AND a.login_name = #{loginName}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="VicmobUser">
+		SELECT *
+		<include refid="vicmobUser" />
+		FROM vicmob_sys_user a
+		<where>
+			<!-- <if test="productsId != null and productsId != ''">
+				AND a.fansId = #{fansId}
+			</if> -->
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="VicmobUser" useGeneratedKeys="true"
+		keyProperty="productsId">
+		INSERT INTO
+		vicmob_sys_user(
+		id,
+		groupid,
+		login_name,
+		password,
+		name,
+		phone,
+		company,
+		address,
+		login_ip,
+		login_date,
+		login_flag,
+		jointime,
+		starttime,
+		endtime,
+		del_flag
+		) VALUES (
+		#{userId},
+		#{groupId},
+		#{loginName},
+		#{passWord},
+		#{name},
+		#{phone},
+		#{company},
+		#{address},
+		#{loginIp},
+		#{loginDate},
+		#{loginFlag},
+		#{joinTime},
+		#{startTime},
+		#{endTime},
+		#{delFlag}
+		)
+	</insert>
+
+
+	<update id="update" parameterType="VicmobUser">
+		UPDATE vicmob_sys_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="userId != null and userId != ''">id = #{userId},</if>
+			<if test="groupId != null and groupId != ''">groupid = #{groupId},</if>
+			<if test="loginName != null and loginName != ''">login_name = #{loginName},</if>
+			<if test="passWord != null and passWord != ''">password = #{passWord},</if>
+			<if test="name != null and name != ''">name = #{name},</if>
+			<if test="phone != null and phone != ''">phone = #{phone},</if>
+			<if test="company != null and company != ''">company = #{company},</if>
+			<if test="address != null and address != ''">address = #{address},</if>
+			<if test="loginIp != null ">login_ip = #{loginIp},</if>
+			<if test="loginDate != null ">login_date = #{loginDate},</if>
+			<if test="loginFlag != null ">login_flag = #{loginFlag},</if>
+			<if test="joinTime != null and joinTime != ''">jointime = #{joinTime},</if>
+			<if test="startTime != null and startTime != ''">starttime = #{startTime},</if>
+			<if test="endTime != null and endTime != ''">endtime = #{endTime},</if>
+			<if test="delFlag != null and delFlag != ''">del_flag = #{delFlag}</if>
+		</trim>
+		WHERE login_name = #{loginName}
+	</update>
+
+	<!-- 通过openId获取fans信息 API -->
+	<!-- 条件1：小程序Id；条件2：openId -->
+	<select id="getFindList" resultType="VicmobUser">
+		SELECT
+		<include refid="vicmobUser" />
+		FROM vicmob_sys_userproducts a
+		<where>
+			<if test="userId != null and userId != ''">
+				AND a.id = #{userId}
+			</if>
+		</where>
+
+	</select>
+
+</mapper>

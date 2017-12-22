@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoDataDao">
+    
+	<sql id="autoDataColumns">
+		a.dataId AS "dataId",
+		a.address AS "address",
+		a.hello AS "hello",
+		a.longitude AS "longitude",
+		a.latitude AS "latitude",
+		a.devices AS "devices",
+		a.lac AS "lac",
+		a.cid AS "cid",
+		a.mnc AS "mnc"
+	</sql>
+    <sql id="autoControl">
+		b.controlId AS "controlId",
+		b.maindevices AS "maindevices",
+		b.partdevices AS "partdevices"
+	</sql>
+	<select id="get" resultType="AutoData">
+		SELECT 
+			<include refid="autoDataColumns"/>
+			
+		FROM auto_data a 
+		
+		WHERE a.dataId = #{dataId}
+	</select>
+	
+	<select id="findList" resultType="AutoData">
+		SELECT 
+			<include refid="autoDataColumns"/>,
+			<include refid="autoControl"/>
+		FROM auto_data a left join auto_control b on a.devices=b.partdevices
+		<where>
+			<if test="dataId != null ">
+				AND a.dataId = #{dataId}
+			</if>
+			<if test="maindevices != null ">
+					AND b.maindevices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{maindevices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{maindevices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{maindevices},'%')</if>
+			</if>
+			<if test="devices != null ">
+				AND ( a.devices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{devices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{devices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{devices},'%')</if>
+			</if>
+			<if test="address != null ">
+					OR a.address LIKE 
+						<if test="dbName == 'oracle'">'%'||#{address}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{address}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{address},'%')</if>
+						)
+			</if>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise> 
+				ORDER BY a.devices , a.dataId DESC
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="AutoData" useGeneratedKeys="true" keyProperty="dataId">
+		INSERT INTO auto_data(
+			address,
+			hello,
+			longitude,
+			latitude,
+			devices,
+			lac,
+			cid,
+			mnc
+		) VALUES (
+			#{address},
+			#{hello},
+			#{longitude},
+			#{latitude},
+			#{devices},
+			#{lac},
+			#{cid},
+			#{mnc}
+		)
+	</insert>
+	
+	<update id="update" parameterType="AutoData" useGeneratedKeys="true" keyProperty="dataId">
+		UPDATE auto_data
+		<trim prefix="set" suffixOverrides=",">
+			<if test="address != null ">address = #{address},</if>
+			<if test="hello != null ">hello = #{hello},</if>
+			<if test="longitude != null ">longitude = #{longitude},</if>
+			<if test="latitude != null ">latitude = #{latitude},</if>
+			<if test="devices != null ">devices = #{devices},</if>
+			<if test="lac != null ">lac = #{lac},</if>
+			<if test="cid != null ">cid = #{cid},</if>
+			<if test="mnc != null ">mnc = #{mnc}</if>
+		 </trim>
+		WHERE dataId = #{dataId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete" parameterType="AutoData" useGeneratedKeys="true" keyProperty="dataId">
+		DELETE FROM auto_data
+		WHERE dataId = #{dataId}
+	</update>
+	
+	<select id="findAutoDataByDevices" parameterType="String" resultType="AutoData">
+		SELECT * FROM auto_data WHERE devices is NULL or devices = #{devices} or devices = '' 
+	</select>
+	
+	<update id="deletedataId" parameterType="AutoData" useGeneratedKeys="true" keyProperty="dataId">
+		DELETE FROM auto_data
+		WHERE dataId = #{dataId}
+	</update>
+</mapper>

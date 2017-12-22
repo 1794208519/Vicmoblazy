@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.FeedBackDao">
+    <sql id="feedbackColumns">
+		a.feedbackId AS "feedbackId",
+		a.name AS "name",
+		a.title AS "title",
+		a.content AS "content",
+		a.createtime AS "createtime",
+		a.updatetime AS "updatetime",
+		a.software AS "software",
+		a.deleteflag AS "deleteflag"
+	</sql>
+    
+    
+	<select id="get" resultType="FeedBack">
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM auto_feedback a		
+		WHERE a.feedbackId = #{feedbackId} AND a.deleteFlag = 0
+		
+		ORDER BY a.feedbackId desc
+	</select>
+	
+	<select id="findList" resultType="FeedBack">
+		SELECT 
+			<include refid="feedbackColumns"/>
+			
+		FROM auto_feedback a 
+		<where>
+			<if test="feedbackId != null ">
+				AND a.feedbackId = #{feedbackId}
+			</if>
+			<if test="title != null ">
+				AND ( a.title LIKE 
+						<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="content != null ">
+					OR a.content LIKE 
+						<if test="dbName == 'oracle'">'%'||#{content}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{content}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{content},'%')</if>
+					)	
+			</if>
+			
+			<if test="deleteflag != null">
+			     AND a.deleteflag = #{deleteflag}
+			</if>
+		</where>
+		ORDER BY a.feedbackId desc
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="FeedBack" useGeneratedKeys="true" keyProperty="feedbackId">
+		INSERT INTO auto_feedback(
+			name,
+			title,
+			content,
+			createtime,
+			software,
+			deleteflag
+		) VALUES (
+			#{name},
+			#{title},
+			#{content},
+			#{createtime},
+			#{software},
+			#{deleteflag}
+		)
+	</insert>
+	
+	<update id="update" parameterType="FeedBack" useGeneratedKeys="true" keyProperty="feedbackId">
+		UPDATE auto_feedback
+		<trim prefix="set" suffixOverrides=",">
+			
+			<if test="title != null ">title = #{title},</if>
+			<if test="content != null ">content = #{content},</if>
+			<if test="updatetime != null ">updatetime = #{updatetime},</if>
+			<if test="deleteflag != null ">deleteflag = #{deleteflag},</if>	
+			<if test="software != null ">software = #{software}</if>	
+		 </trim>
+		WHERE feedbackId = #{feedbackId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete">
+		DELETE FROM auto_feedback
+		WHERE feedbackId = #{feedbackId}
+	</update>
+	
+</mapper>

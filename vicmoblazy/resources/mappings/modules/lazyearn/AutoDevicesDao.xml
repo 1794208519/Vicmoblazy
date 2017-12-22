@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoDevicesDao">
+    
+	<sql id="AutoDevicesColumns">
+		a.devicesId AS "devicesId",
+		a.file AS "file",
+		a.devices AS "devices",
+		a.status AS "status"
+	</sql>
+    <sql id="autoControl">
+		b.controlId AS "controlId",
+		b.maindevices AS "maindevices",
+		b.partdevices AS "partdevices"
+	</sql>
+	<select id="get" resultType="AutoDevices">
+		SELECT 
+			<include refid="AutoDevicesColumns"/>
+		FROM auto_devices a		
+		WHERE a.devicesId = #{devicesId}
+	</select>
+	
+	<select id="findList" resultType="AutoDevices">
+		SELECT 
+			<include refid="AutoDevicesColumns"/>,
+			<include refid="autoControl"/>
+		FROM auto_devices a left join auto_control b on a.devices=b.partdevices
+		<where>
+			<if test="devicesId != null ">
+				AND a.devicesId = #{devicesId}
+			</if>
+			<if test="maindevices != null ">
+					AND b.maindevices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{maindevices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{maindevices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{maindevices},'%')</if>
+			</if>
+			<if test="devices != null ">
+				AND ( a.devices = #{devices}
+			</if>
+			
+			<if test="file != null ">
+					OR a.file LIKE 
+						<if test="dbName == 'oracle'">'%'||#{file}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{file}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{file},'%')</if>
+						)
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="AutoDevices" useGeneratedKeys="true" keyProperty="devicesId">
+		INSERT INTO auto_devices(
+			file,
+			devices,
+			status
+		) VALUES (
+			#{file},
+			#{devices},
+			#{status}
+		)
+	</insert>
+	
+	<update id="update" parameterType="AutoDevices" useGeneratedKeys="true" keyProperty="devicesId">
+		UPDATE auto_devices
+		<trim prefix="set" suffixOverrides=",">
+			<if test="file != null ">file = #{file},</if>
+			<if test="devices != null ">devices = #{devices},</if>
+			<if test="status != null ">status = #{status}</if>
+		 </trim>
+		WHERE devicesId = #{devicesId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete">
+		DELETE FROM auto_devices
+		WHERE devicesId = #{devicesId}
+	</update>
+	
+	<select id="findAutoDevicesByDevices" parameterType="String" resultType="AutoDevices">
+		SELECT * FROM auto_devices WHERE devices is NULL or devices = #{devices} or devices = '' 
+	</select>
+	
+	<!--传入状态值将表内所有记录的状态值都改变-->
+	<update id="updateAllStatus" parameterType="String">
+		UPDATE auto_devices SET status = #{status}
+	</update>
+	<update id="whiteListDelete" >
+		DELETE FROM auto_devices WHERE devicesId = #{devicesId}
+	</update>
+
+</mapper>

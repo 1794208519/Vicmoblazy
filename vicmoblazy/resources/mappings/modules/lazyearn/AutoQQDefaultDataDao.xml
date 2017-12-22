@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoQQDefaultDataDao">
+    
+	<sql id="autoQQDefaultDataColumns">
+		a.qqDefaultDataId AS "qqDefaultDataId",
+		a.qq_nearby_num AS "qqNearbyNum",
+		a.qq_nearby_content AS "qqNearbyContent",
+		a.qq_friend_num AS "qqFriendNum",
+		a.qq_groupfriend_num AS "qqGroupfriendNum",
+		a.qq_akey_content AS "qqAkeyContent",
+		a.devices AS "devices",
+		a.deleteFlag AS "deleteFlag"
+	</sql>
+    
+	<select id="get" resultType="AutoQQDefaultData">
+		SELECT 
+			<include refid="autoQQDefaultDataColumns"/>
+		FROM auto_qqdefault_data a
+		
+		WHERE a.qqDefaultDataId = #{qqDefaultDataId} AND a.deleteFlag = 0
+		ORDER BY a.qqDefaultDataId desc
+	</select>
+	
+	<select id="findList" resultType="AutoQQDefaultData">
+		SELECT 
+			<include refid="autoQQDefaultDataColumns"/>
+		FROM auto_qqdefault_data a
+		<where>
+			<if test="qqDefaultDataId != null ">
+				AND a.qqDefaultDataId = #{qqDefaultDataId}
+			</if>
+			<if test="devices != null ">
+				AND a.devices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{devices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{devices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{devices},'%')</if>
+			</if>
+			<if test="deleteFlag != null">
+			     AND a.deleteFlag = #{deleteFlag}
+			</if>
+		</where>
+		ORDER BY a.qqDefaultDataId desc
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="AutoQQDefaultData" useGeneratedKeys="true" keyProperty="qqDefaultDataId">
+		INSERT INTO auto_qqdefault_data(
+			qq_nearby_num,
+			qq_friend_num,
+			qq_groupfriend_num,
+			qq_nearby_content,
+			qq_akey_content,
+			devices,
+			deleteFlag
+		) VALUES (
+			#{qqNearbyNum},
+			#{qqFriendNum},
+			#{qqGroupfriendNum},
+			#{qqNearbyContent},
+			#{qqAkeyContent},
+			#{devices},
+			#{deleteFlag}
+		)
+	</insert>
+	
+	<update id="update" parameterType="AutoQQDefaultData" useGeneratedKeys="true" keyProperty="qqDefaultDataId">
+		UPDATE auto_qqdefault_data
+		<trim prefix="set" suffixOverrides=",">
+			<if test="qqNearbyNum != null">qq_nearby_num = #{qqNearbyNum},</if>
+			<if test="qqFriendNum != null">qq_friend_num = #{qqFriendNum},</if>
+			<if test="qqGroupfriendNum != null">qq_groupfriend_num = #{qqGroupfriendNum},</if>
+			<if test="qqNearbyContent != null">qq_nearby_content = #{qqNearbyContent},</if>
+			<if test="qqAkeyContent != null">qq_akey_content = #{qqAkeyContent},</if>
+			<if test="devices != null">devices = #{devices},</if>
+			<if test="deleteFlag != null ">deleteFlag = #{deleteFlag}</if>
+		 </trim>
+		WHERE qqDefaultDataId = #{qqDefaultDataId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete" parameterType="AutoQQDefaultData" useGeneratedKeys="true" keyProperty="qqDefaultDataId">
+		DELETE FROM auto_qqdefault_data
+		WHERE qqDefaultDataId = #{qqDefaultDataId}
+	</update>
+	
+</mapper>

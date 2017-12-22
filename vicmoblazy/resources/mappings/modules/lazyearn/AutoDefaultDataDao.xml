@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.lazyearn.dao.AutoDefaultDataDao">
+    
+	<sql id="autoDefaultDataColumns">
+		a.defaultDataId AS "defaultDataId",
+		a.wx_nearby_num AS "wxNearbyNum",
+		a.wx_friend_num AS "wxFriendNum",
+		a.wx_groupfriend_num AS "wxGroupfriendNum",
+		a.wx_public_num AS "wxPublicNum",
+		a.wx_driftbottle_num AS "wxDriftbottleNum",
+		a.wx_circle_num AS "wxCircleNum",
+		a.wx_nearby_content AS "wxNearbyContent",
+		a.wx_public_index AS "wxPublicIndex",
+		a.wx_publicfriend_num AS "wxPublicfriendNum",
+		a.wx_driftbottle_content AS "wxDriftbottleContent",
+		a.wx_circle_content AS "wxCircleContent",
+		a.wx_akey_content AS "wxAkeyContent",
+		a.devices AS "devices",
+		a.deleteFlag AS "deleteFlag"
+	</sql>
+    
+	<select id="get" resultType="AutoDefaultData">
+		SELECT 
+			<include refid="autoDefaultDataColumns"/>
+		FROM auto_default_data a
+		
+		WHERE a.defaultDataId = #{defaultDataId} AND a.deleteFlag = 0
+		ORDER BY a.defaultDataId desc
+	</select>
+	
+	<select id="findList" resultType="AutoDefaultData">
+		SELECT 
+			<include refid="autoDefaultDataColumns"/>
+		FROM auto_default_data a
+		<where>
+			<if test="defaultDataId != null ">
+				AND a.defaultDataId = #{defaultDataId}
+			</if>
+			<if test="devices != null ">
+				AND a.devices LIKE 
+						<if test="dbName == 'oracle'">'%'||#{devices}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{devices}+'%'</if>
+						<if test="dbName == 'mysql'">concat('%',#{devices},'%')</if>
+			</if>
+			<if test="deleteFlag != null">
+			     AND a.deleteFlag = #{deleteFlag}
+			</if>
+		</where>
+		ORDER BY a.defaultDataId desc
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<insert id="insert"  parameterType="AutoDefaultData" useGeneratedKeys="true" keyProperty="defaultDataId">
+		INSERT INTO auto_default_data(
+			wx_nearby_num,
+			wx_friend_num,
+			wx_groupfriend_num,
+			wx_public_num,
+			wx_driftbottle_num,
+			wx_circle_num,
+			wx_nearby_content,
+			wx_public_index,
+			wx_publicfriend_num,
+			wx_driftbottle_content,
+			wx_circle_content,
+			wx_akey_content,
+			devices,
+			deleteFlag
+		) VALUES (
+			#{wxNearbyNum},
+			#{wxFriendNum},
+			#{wxGroupfriendNum},
+			#{wxPublicNum},
+			#{wxDriftbottleNum},
+			#{wxCircleNum},
+			#{wxNearbyContent},
+			#{wxPublicIndex},
+			#{wxPublicfriendNum},
+			#{wxDriftbottleContent},
+			#{wxCircleContent},
+			#{wxAkeyContent},
+			#{devices},
+			#{deleteFlag}
+		)
+	</insert>
+	
+	<update id="update" parameterType="AutoDefaultData" useGeneratedKeys="true" keyProperty="defaultDataId">
+		UPDATE auto_default_data
+		<trim prefix="set" suffixOverrides=",">
+			<if test="wxNearbyNum != null">wx_nearby_num = #{wxNearbyNum},</if>
+			<if test="wxFriendNum != null">wx_friend_num = #{wxFriendNum},</if>
+			<if test="wxGroupfriendNum != null">wx_groupfriend_num = #{wxGroupfriendNum},</if>
+			<if test="wxPublicNum != null">wx_public_num = #{wxPublicNum},</if>
+			<if test="wxDriftbottleNum != null">wx_driftbottle_num = #{wxDriftbottleNum},</if>
+			<if test="wxCircleNum != null">wx_circle_num = #{wxCircleNum},</if>
+			<if test="wxNearbyContent != null">wx_nearby_content = #{wxNearbyContent},</if>
+			<if test="wxPublicIndex != null">wx_public_index = #{wxPublicIndex},</if>
+			<if test="wxPublicfriendNum != null">wx_publicfriend_num = #{wxPublicfriendNum},</if>
+			<if test="wxDriftbottleContent != null">wx_driftbottle_content = #{wxDriftbottleContent},</if>
+			<if test="wxCircleContent != null">wx_circle_content = #{wxCircleContent},</if>
+			<if test="wxAkeyContent != null">wx_akey_content = #{wxAkeyContent},</if>
+			<if test="devices != null">devices = #{devices},</if>
+			<if test="deleteFlag != null ">deleteFlag = #{deleteFlag}</if>
+		 </trim>
+		WHERE defaultDataId = #{defaultDataId}
+	</update>
+	
+		<!--物理删除-->
+	<update id="delete" parameterType="AutoDefaultData" useGeneratedKeys="true" keyProperty="defaultDataId">
+		DELETE FROM auto_default_data
+		WHERE defaultDataId = #{defaultDataId}
+	</update>
+	
+</mapper>

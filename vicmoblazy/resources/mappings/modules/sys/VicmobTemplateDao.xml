@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.VicmobTemplateDao">
+    
+	<sql id="vicmobTemplate">
+		a.templateId AS "templateId",
+		a.minaId AS "minaId",
+		a.informType AS "informType",
+		a.informId AS "informId"
+	</sql>
+	
+	<select id="findTemplate" resultType="VicmobTemplate">
+		SELECT 
+			<include refid="vicmobTemplate"/>
+		FROM vicmob_template a
+		<where>
+			<if test="minaId != null ">
+					AND a.minaId = #{minaId}
+			</if>
+			<if test="informType != null ">
+			     AND a.informType = #{informType}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="VicmobTemplate">
+		SELECT 
+			<include refid="vicmobTemplate"/>
+		FROM vicmob_template a WHERE a.minaId = #{minaId}
+	</select>
+	
+	<insert id="insert"  parameterType="VicmobTemplate" useGeneratedKeys="true" keyProperty="templateId">
+		INSERT INTO vicmob_template(
+			minaId,
+			informType,
+			informId
+		) VALUES (
+			#{minaId},
+			#{informType},
+			#{informId}
+		)
+	</insert>
+	
+	<update id="update" parameterType="VicmobTemplate">
+		UPDATE vicmob_template SET 	
+			informId = #{informId}
+		WHERE minaId = #{minaId} AND informType = #{informType}
+	</update>
+	
+</mapper>
